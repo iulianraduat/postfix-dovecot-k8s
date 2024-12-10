@@ -1,0 +1,47 @@
+# Basic Postfix configuration
+inet_interfaces = all
+mydestination = localhost.$mydomain, localhost
+mynetworks = 127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
+relay_domains =
+
+virtual_mailbox_base = /var/mail/vhosts
+virtual_alias_maps = hash:/opt/postfix-dovecot/virtual_alias_maps
+virtual_mailbox_maps = hash:/opt/postfix-dovecot/virtual_mailbox_maps
+
+## Customized smtpd paramters
+smtpd_banner = $myhostname ESMTP
+smtpd_helo_required = yes
+smtpd_helo_restrictions = permit_mynetworks,
+	reject_non_fqdn_helo_hostname, reject_invalid_helo_hostname,
+	reject_unknown_helo_hostname, permit
+smtpd_recipient_restrictions = reject_unknown_client_hostname,
+	reject_unknown_sender_domain, reject_unknown_recipient_domain,
+	reject_unauth_pipelining, permit_mynetworks,
+	permit_sasl_authenticated, reject_unauth_destination,
+	reject_invalid_hostname, reject_non_fqdn_sender
+smtpd_sender_restrictions = reject_unknown_sender_domain, reject_sender_login_mismatch
+smtpd_sender_login_maps = $virtual_mailbox_maps
+
+## Dealing with rejection: use permanent 550 errors to stop retries
+unknown_address_reject_code = 550
+unknown_hostname_reject_code = 550
+unknown_client_reject_code = 550
+
+## Customized Dovecot and virtual user-specific settings
+message_size_limit = 104857600
+virtual_transport = dovecot
+virtual_minimum_uid = 100
+
+## This setting will generate an error if you restart Postfix before
+## adding the appropriate service definition in master.cf, so make
+## sure to get that taken care of!
+dovecot_destination_recipient_limit = 1
+
+# Logging
+maillog_file = /var/log/postfix-dovecot/postfix.log
+debug_peer_level = 2
+
+# Remove compatility
+compatibility_level=2
+
+# Others

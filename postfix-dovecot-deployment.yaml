@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postfix-dovecot
+spec:
+  selector:
+    app: postfix-dovecot
+  ports:
+    - name: '25'
+      protocol: TCP
+      port: 25
+      targetPort: 25
+    - name: '143'
+      protocol: TCP
+      port: 143
+      targetPort: 143
+    - name: '587'
+      protocol: TCP
+      port: 587
+      targetPort: 587
+    - name: '993'
+      protocol: TCP
+      port: 993
+      targetPort: 993
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: postfix-dovecot
+  name: postfix-dovecot-config
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: postfix-dovecot
+  name: postfix-dovecot-logs
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postfix-dovecot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postfix-dovecot
+  template:
+    metadata:
+      labels:
+        app: postfix-dovecot
+    spec:
+      imagePullSecrets:
+        - name: registry-credentials
+      containers:
+        - name: postfix-dovecot
+          image: <YOUR_REPO>/postfix-dovecot
+          ports:
+            - containerPort: 25
+            - containerPort: 143
+            - containerPort: 587
+            - containerPort: 993
+          envFrom:
+            - configMapRef:
+                name: postfix-dovecot-config
+          volumeMounts:
+            - name: postfix-dovecot-config
+              mountPath: /opt/postfix-dovecot
+            - name: postfix-dovecot-logs
+              mountPath: /var/log/postfix-dovecot
+      volumes:
+        - name: postfix-dovecot-config
+          persistentVolumeClaim:
+            claimName: postfix-dovecot-config
+        - name: postfix-dovecot-logs
+          persistentVolumeClaim:
+            claimName: postfix-dovecot-logs

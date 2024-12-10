@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - postfix-dovecot-deployment.yaml
+
+configMapGenerator:
+  - name: postfix-dovecot-config
+    literals:
+      - POSTFIX_MYDOMAIN=<YOUR_DOMAIN>
+      - POSTFIX_POSTMASTER=postmaster

@@ -1,0 +1,3 @@
+postmaster@<YOUR_DOMAIN>:{PLAIN}postmaster
+admin@<YOUR_DOMAIN>:{PLAIN}admin
+demo@<YOUR_DOMAIN>:{PLAIN}demo
