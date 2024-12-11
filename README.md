@@ -35,27 +35,27 @@ or run `kubectl get svc` from the shell of the server running the cluster.
 
 You must customize some values in the `configMapGenerator` section of `kustomization.yaml` and in the following files:
 
-- dovecot/dovecot-passwd
+- dovecot/dovecot_passwd
 - postfix/virtual_alias_maps
 - postfix/virtual_mailbox_maps
 
 Afterwards you need to copy these 3 files in `postfix-dovecot-config` PVC.
+You can also create a file caleld `sasl_passwd` which holds the SMTP passwords. If it is missing, it will be created from `dovecot_passwd`.
 
-## Accessign the smtp and imap
+## Accessing the smtp and imap
 
 You need to access the corresponding ports.
 
 ## Troubleshooting
 
-If you get the following error when sending a message:
+If you want to increase the security, add `reject_unknown_sender_domain` to `smtpd_recipient_restrictions` and `smtpd_sender_restrictions` in `main.cf`. Also `reject_unknown_client_hostname` to `smtpd_recipient_restrictions`.
 
-- `Client host rejected: cannot find your hostname`: remove `reject_unknown_client_hostname` from `smtpd_recipient_restrictions` in `main.cf` and try again.
+If you get the error `Client host rejected: cannot find your hostname` then remove `reject_unknown_client_hostname` from `smtpd_recipient_restrictions` in `main.cf` and try again.
 
-If you need to authenticate to your repo:
+If you need to authenticate to your docker repository:
 
 - kubectl create secret docker-registry registry-credentials --docker-server=<your_registry_server> --docker-username=<your_username> --docker-password=<your_password> --docker-email=<your_email>
 
 ## Know Bugs
 
 - SSL is not supported by SMTP and IMAP
-- SMTP allows sending messages without authentication

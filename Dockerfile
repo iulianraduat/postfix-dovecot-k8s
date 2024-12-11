@@ -18,7 +18,7 @@ COPY dovecot/dovecot.conf /etc/dovecot/dovecot.dist.conf
 RUN mkdir -p /opt/postfix-dovecot
 COPY postfix/virtual_mailbox_maps /opt/postfix-dovecot/virtual_mailbox_maps
 COPY postfix/virtual_alias_maps /opt/postfix-dovecot/virtual_alias_maps
-COPY dovecot/dovecot-passwd /opt/postfix-dovecot/dovecot-passwd
+COPY dovecot/dovecot_passwd /opt/postfix-dovecot/dovecot_passwd
 
 # Copy setup file
 COPY scripts/setup.sh /usr/local/bin/setup.sh
