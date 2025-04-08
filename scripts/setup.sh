@@ -31,6 +31,19 @@ if [ ! -f /opt/postfix-dovecot/sasl_passwd ]; then
   done
 fi
 
+cat /opt/postfix-dovecot/dovecot_passwd | while read LINE; do
+  if [[ "$LINE" == *":{PLAIN}"* ]]; then
+    IFS="{PLAIN}" read -r ACCOUNT PASSWORD <<< "$LINE"
+    echo -n $ACCOUNT >> /opt/postfix-dovecot/dovecot_passwd.tmp
+    doveadm pw -s SHA512-CRYPT -p "$PASSWORD" | tr -d '\n' >> /opt/postfix-dovecot/dovecot_passwd.tmp
+    IFS="@" read -r U D <<< "${ACCOUNT/:/}"
+    echo :8:8::/var/mail/vhosts/$D/$U:: >> /opt/postfix-dovecot/dovecot_passwd.tmp
+  else
+    echo "$LINE" >> /opt/postfix-dovecot/dovecot_passwd.tmp
+  fi
+done
+mv -f /opt/postfix-dovecot/dovecot_passwd.tmp /opt/postfix-dovecot/dovecot_passwd
+
 # Prepare the vhosts folder
 mkdir -p /var/mail/vhosts
 chown -R mail:mail /var/mail/vhosts
@@ -41,7 +54,9 @@ postmap /etc/postfix/sender_login_maps
 postmap /opt/postfix-dovecot/sasl_passwd
 postmap /opt/postfix-dovecot/virtual_alias_maps
 postmap /opt/postfix-dovecot/virtual_mailbox_maps
+chmod 600 /opt/postfix-dovecot/dovecot_passwd
 chmod 600 /opt/postfix-dovecot/sasl_passwd /opt/postfix-dovecot/sasl_passwd.db
+chown root:dovecot /opt/postfix-dovecot/*
 
 # Dovecot
 cp -f /etc/dovecot/dovecot.dist.conf /etc/dovecot/dovecot.conf
