@@ -1,5 +1,5 @@
 myhostname = $MAIL_HOSTNAME
-mydomain = $DOMAIN
+mydomain = $FIRST_DOMAIN
 myorigin = $mydomain
 
 # Basic Postfix configuration
@@ -33,6 +33,7 @@ unknown_hostname_reject_code = 550
 unknown_client_reject_code = 550
 
 ## Customized Dovecot and virtual user-specific settings
+mailbox_size_limit = 0
 message_size_limit = 104857600
 virtual_transport = dovecot
 virtual_minimum_uid = 100

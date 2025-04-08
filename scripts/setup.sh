@@ -1,11 +1,15 @@
-#!/bin/bash
+#!/bin/bash -x
 
 DOMAIN=${POSTFIX_DOMAIN:-<YOUR_DOMAIN>}
 MAIL_HOSTNAME=${POSTFIX_HOSTNAME:-mail.$DOMAIN}
 POSTMASTER=${POSTFIX_POSTMASTER:-postmaster}
+FIRST_DOMAIN=${DOMAIN%%,*}
 
 # Create virtual domain
-sed -e "s|\$DOMAIN|${DOMAIN}|g" -e "s|\$MAIL_HOSTNAME|${MAIL_HOSTNAME}|g" /etc/postfix/main.dist.cf > /etc/postfix/main.cf
+sed -e "s|\$DOMAIN|${DOMAIN}|g" \
+  -e "s|\$MAIL_HOSTNAME|${MAIL_HOSTNAME}|g" \
+  -e "s|\$FIRST_DOMAIN|${FIRST_DOMAIN}|g" \
+  /etc/postfix/main.dist.cf > /etc/postfix/main.cf
 
 # Updating the postfix services
 cp -f /etc/postfix/master.dist.cf /etc/postfix/master.cf
