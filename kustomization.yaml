@@ -7,5 +7,6 @@ resources:
 configMapGenerator:
   - name: postfix-dovecot-config
     literals:
-      - POSTFIX_MYDOMAIN=<YOUR_DOMAIN>
+      - POSTFIX_DOMAIN=<YOUR_DOMAIN>
+      - MAIL_HOSTNAME=<YOUR_MAIL_HOSTNAME>
       - POSTFIX_POSTMASTER=postmaster

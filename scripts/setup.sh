@@ -1,14 +1,11 @@
 #!/bin/bash
 
-DOMAIN=${POSTFIX_MYDOMAIN:-<YOUR_DOMAIN>}
+DOMAIN=${POSTFIX_DOMAIN:-<YOUR_DOMAIN>}
+MAIL_HOSTNAME=${POSTFIX_HOSTNAME:-mail.$DOMAIN}
 POSTMASTER=${POSTFIX_POSTMASTER:-postmaster}
 
 # Create virtual domain
-cp -f /etc/postfix/main.dist.cf /etc/postfix/main.cf
-echo "virtual_mailbox_domains = $DOMAIN" >> /etc/postfix/main.cf
-echo "virtual_uid_maps = static:mail" >> /etc/postfix/main.cf
-echo "virtual_gid_maps = static:mail" >> /etc/postfix/main.cf
-echo "debug_peer_list = $DOMAIN" >> /etc/postfix/main.cf
+sed -e "s|\$DOMAIN|${DOMAIN}|g" -e "s|\$MAIL_HOSTNAME|${MAIL_HOSTNAME}|g" /etc/postfix/main.dist.cf > /etc/postfix/main.cf
 
 # Updating the postfix services
 cp -f /etc/postfix/master.dist.cf /etc/postfix/master.cf
@@ -42,13 +39,12 @@ postmap /opt/postfix-dovecot/virtual_alias_maps
 postmap /opt/postfix-dovecot/virtual_mailbox_maps
 chmod 600 /opt/postfix-dovecot/sasl_passwd /opt/postfix-dovecot/sasl_passwd.db
 
-
 # Dovecot
 cp -f /etc/dovecot/dovecot.dist.conf /etc/dovecot/dovecot.conf
 if [ -n "$POSTMASTER" ]; then
 cat<<EOF >> /etc/dovecot/dovecot.conf
 protocol lda {
-  postmaster_address = $POSTMASTER@${$DOMAIN%% *}
+  postmaster_address = $POSTMASTER@$DOMAIN
 }
 EOF
 fi
@@ -61,3 +57,8 @@ chmod 0644 /var/log/postfix-dovecot/dovecot.log
 touch /var/log/postfix-dovecot/postfix.log
 chown mail:mail /var/log/postfix-dovecot/postfix.log
 chmod 0644 /var/log/postfix-dovecot/postfix.log
+
+ service postfix start
+ service dovecot start
+ tail -f /dev/null
+ 

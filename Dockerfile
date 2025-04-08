@@ -7,8 +7,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Update and install necessary packages
 RUN apt-get update && \
     apt-get install -y postfix dovecot-imapd && \
-    apt-get clean && \
-    cp -f /etc/postfix/master.cf /etc/postfix/master.dist.cf
+    apt-get clean
+RUN cp -f /etc/postfix/master.cf /etc/postfix/master.dist.cf
 
 # Copy configuration files
 COPY postfix/main.cf /etc/postfix/main.dist.cf
@@ -26,11 +26,13 @@ COPY scripts/setup.sh /usr/local/bin/setup.sh
 RUN chmod +x /usr/local/bin/setup.sh
 
 # Debug
-#RUN apt-get install -y mc net-tools mailutils telnet
-#COPY test/send-email.sh /root/send-email.sh
+RUN apt-get update && \
+    apt-get install -y mc net-tools mailutils telnet && \
+    apt-get clean
+COPY test/send-email.sh /root/send-email.sh
 
-# Expose necessary ports
+# Expose necessary ports SMTP IMAP SMTP IMAP
 EXPOSE 25 143 587 993
 
 # Start the services
-CMD /usr/local/bin/setup.sh && service postfix start && service dovecot start && tail -f /dev/null
+CMD ["/usr/local/bin/setup.sh"]

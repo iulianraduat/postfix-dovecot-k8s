@@ -42,6 +42,11 @@ You must customize some values in the `configMapGenerator` section of `kustomiza
 Afterwards you need to copy these 3 files in `postfix-dovecot-config` PVC.
 You can also create a file caleld `sasl_passwd` which holds the SMTP passwords. If it is missing, it will be created from `dovecot_passwd`.
 
+## DNS
+
+Setup SPF as:
+TXT @ v=spf1 mx ~all
+
 ## Accessing the smtp and imap
 
 You need to access the corresponding ports.
