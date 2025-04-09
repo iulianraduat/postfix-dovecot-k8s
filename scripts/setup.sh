@@ -47,7 +47,7 @@ mv -f /opt/postfix-dovecot/dovecot_passwd.tmp /opt/postfix-dovecot/dovecot_passw
 # Prepare the vhosts folder
 mkdir -p /var/mail/vhosts
 chown -R mail:mail /var/mail/vhosts
-chmod -R 755 /var/mail/vhosts
+chmod -R 750 /var/mail/vhosts
 
 # Update Postfix database
 postmap /etc/postfix/sender_login_maps
@@ -56,7 +56,7 @@ postmap /opt/postfix-dovecot/virtual_alias_maps
 postmap /opt/postfix-dovecot/virtual_mailbox_maps
 chmod 600 /opt/postfix-dovecot/dovecot_passwd
 chmod 600 /opt/postfix-dovecot/sasl_passwd /opt/postfix-dovecot/sasl_passwd.db
-chown root:dovecot /opt/postfix-dovecot/*
+chown dovecot:root /opt/postfix-dovecot/*
 
 # Dovecot
 cp -f /etc/dovecot/dovecot.dist.conf /etc/dovecot/dovecot.conf
@@ -77,7 +77,7 @@ touch /var/log/postfix-dovecot/postfix.log
 chown mail:mail /var/log/postfix-dovecot/postfix.log
 chmod 0644 /var/log/postfix-dovecot/postfix.log
 
- service postfix start
- service dovecot start
- tail -f /dev/null
+service postfix start
+service dovecot start
+tail -f /dev/null
  

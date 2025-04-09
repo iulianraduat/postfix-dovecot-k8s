@@ -15,6 +15,10 @@ virtual_mailbox_maps = hash:/opt/postfix-dovecot/virtual_mailbox_maps
 smtpd_sender_login_maps = hash:/etc/postfix/sender_login_maps
 smtp_sasl_password_maps = hash:/opt/postfix-dovecot/sasl_passwd
 
+## We deliver virtual instead of local
+local_transport = virtual
+local_recipient_maps = $virtual_mailbox_maps
+
 ## Customized smtpd paramters
 smtpd_banner = $myhostname ESMTP
 smtpd_helo_required = yes
@@ -34,9 +38,10 @@ unknown_client_reject_code = 550
 
 ## Customized Dovecot and virtual user-specific settings
 mailbox_size_limit = 0
+virtual_mailbox_limit = 0
 message_size_limit = 104857600
 virtual_transport = dovecot
-virtual_minimum_uid = 100
+virtual_minimum_uid = 8
 
 ## This setting will generate an error if you restart Postfix before
 ## adding the appropriate service definition in master.cf, so make
@@ -59,6 +64,6 @@ smtpd_sasl_type = dovecot
 # Others
 virtual_alias_domains = $DOMAIN
 virtual_mailbox_domains = $DOMAIN
-virtual_uid_maps = static:mail
-virtual_gid_maps = static:mail
+virtual_uid_maps = static:8
+virtual_gid_maps = static:8
 debug_peer_list = $DOMAIN

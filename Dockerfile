@@ -25,12 +25,6 @@ COPY scripts/setup.sh /usr/local/bin/setup.sh
 # Make the script executable
 RUN chmod +x /usr/local/bin/setup.sh
 
-# Debug
-RUN apt-get update && \
-    apt-get install -y mc net-tools mailutils telnet && \
-    apt-get clean
-COPY test/send-email.sh /root/send-email.sh
-
 # Expose necessary ports SMTP IMAP SMTP IMAP
 EXPOSE 25 143 587 993
 
