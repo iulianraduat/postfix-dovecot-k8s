@@ -63,7 +63,7 @@ cp -f /etc/dovecot/dovecot.dist.conf /etc/dovecot/dovecot.conf
 if [ -n "$POSTMASTER" ]; then
 cat<<EOF >> /etc/dovecot/dovecot.conf
 protocol lda {
-  postmaster_address = $POSTMASTER@$DOMAIN
+  postmaster_address = $POSTMASTER@$FIRST_DOMAIN
 }
 EOF
 fi
@@ -77,7 +77,22 @@ touch /var/log/postfix-dovecot/postfix.log
 chown mail:mail /var/log/postfix-dovecot/postfix.log
 chmod 0644 /var/log/postfix-dovecot/postfix.log
 
+if [ -n "$SSL_SUBJ" ]; then
+  openssl genpkey -algorithm RSA -out /etc/ssl/private/mailserver.key
+  openssl req -x509 -nodes -newkey rsa:4096 \
+    -keyout /etc/ssl/private/mailserver.key \
+    -out /etc/ssl/certs/mailserver.pem \
+    -days 365 \
+    -subj "$SSL_SUBJ"
+  chmod 600 /etc/ssl/private/mailserver.key
+  chown root:root /etc/ssl/private/mailserver.key
+
+  echo "verbose_ssl = yes" >> /etc/dovecot/dovecot.conf
+  echo "ssl = yes" >> /etc/dovecot/dovecot.conf
+  echo "ssl_cert = </etc/ssl/certs/mailserver.pem" >> /etc/dovecot/dovecot.conf
+  echo "ssl_key  = </etc/ssl/private/mailserver.key" >> /etc/dovecot/dovecot.conf
+fi
+
 service postfix start
 service dovecot start
 tail -f /dev/null
- 
