@@ -67,3 +67,17 @@ virtual_mailbox_domains = $DOMAIN
 virtual_uid_maps = static:8
 virtual_gid_maps = static:8
 debug_peer_list = $DOMAIN
+
+# How often to reset the counters
+anvil_rate_time_unit = 60s
+# Limit number of new connections per client per anvil_rate_time_unit
+smtpd_client_connection_rate_limit = 5
+# Limit number of messages per client per anvil_rate_time_unit
+smtpd_client_message_rate_limit = 10
+
+# For heavy attack (bots, scanners)
+postscreen_greet_action = enforce
+# DNSBLs (optional - for blacklists)
+postscreen_dnsbl_sites = zen.spamhaus.org bl.spamcop.net b.barracudacentral.org dnsbl.sorbs.net
+postscreen_dnsbl_action = enforce
+postscreen_blacklist_action = drop

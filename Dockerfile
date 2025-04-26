@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Update and install necessary packages
 RUN apt-get update && \
-    apt-get install -y postfix dovecot-imapd && \
+    apt-get install -y dos2unix postfix dovecot-imapd && \
     apt-get clean
 RUN cp -f /etc/postfix/master.cf /etc/postfix/master.dist.cf
 
@@ -21,12 +21,12 @@ COPY postfix/virtual_alias_maps /opt/postfix-dovecot/virtual_alias_maps
 COPY dovecot/dovecot_passwd /opt/postfix-dovecot/dovecot_passwd
 
 # Copy setup file
-COPY scripts/setup.sh /usr/local/bin/setup.sh
+COPY scripts/setup.sh /setup.sh
 # Make the script executable
-RUN chmod +x /usr/local/bin/setup.sh
+RUN dos2unix /setup.sh && chmod +x /setup.sh
 
 # Expose necessary ports SMTP IMAP SMTP IMAP
 EXPOSE 25 143 587 993
 
 # Start the services
-CMD ["/usr/local/bin/setup.sh"]
+CMD ["/bin/bash", "/setup.sh"]

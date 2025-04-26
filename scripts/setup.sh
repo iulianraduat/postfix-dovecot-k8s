@@ -13,9 +13,12 @@ sed -e "s|\$DOMAIN|${DOMAIN}|g" \
 
 # Updating the postfix services
 cp -f /etc/postfix/master.dist.cf /etc/postfix/master.cf
+sed -i '/^smtp\s\+inet.*smtpd/ s/^/#/' /etc/postfix/master.cf
 echo 'submission inet n       -       -       -       -       smtpd' >> /etc/postfix/master.cf
 echo 'dovecot   unix  -       n       n       -       -       pipe
   flags=DRhu user=mail:mail argv=/usr/lib/dovecot/deliver -f ${sender} -d ${recipient}' >> /etc/postfix/master.cf
+echo 'smtp   inet  n       -       y       -       1       postscreen' >> /etc/postfix/master.cf
+echo 'dnsblog   unix  -       -       y       -       0       dnsblog' >> /etc/postfix/master.cf
 
 # Authentication
 if [ ! -f /etc/postfix/sender_login_maps ]; then
