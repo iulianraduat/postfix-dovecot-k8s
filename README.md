@@ -40,7 +40,6 @@ You must customize some values in the `configMapGenerator` section of `kustomiza
 - postfix/virtual_mailbox_maps
 
 Afterwards you need to copy these 3 files in `postfix-dovecot-config` PVC.
-You can also create a file caleld `sasl_passwd` which holds the SMTP passwords. If it is missing, it will be created from `dovecot_passwd`.
 
 ## DNS
 

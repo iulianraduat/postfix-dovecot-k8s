@@ -1,0 +1,1 @@
+0 3 1 1 * root /etc/dovecot/gen-dovecot-certificate.sh >> /dev/null 2>&1

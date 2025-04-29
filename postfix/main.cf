@@ -13,7 +13,6 @@ virtual_mailbox_base = /var/mail/vhosts
 virtual_alias_maps = hash:/opt/postfix-dovecot/virtual_alias_maps
 virtual_mailbox_maps = hash:/opt/postfix-dovecot/virtual_mailbox_maps
 smtpd_sender_login_maps = hash:/etc/postfix/sender_login_maps
-smtp_sasl_password_maps = hash:/opt/postfix-dovecot/sasl_passwd
 
 ## We deliver virtual instead of local
 local_transport = virtual
@@ -30,6 +29,7 @@ smtpd_recipient_restrictions = reject_unknown_recipient_domain,
 	permit_sasl_authenticated, reject_unauth_destination,
 	reject_invalid_hostname, reject_non_fqdn_sender
 smtpd_sender_restrictions = reject_sender_login_mismatch
+smtpd_tls_security_level = none
 
 ## Dealing with rejection: use permanent 550 errors to stop retries
 unknown_address_reject_code = 550
@@ -55,7 +55,7 @@ debug_peer_level = 2
 # Remove compatility
 compatibility_level=2
 
-# Autgentication
+# Authentication
 smtpd_sasl_auth_enable = yes
 smtpd_sasl_security_options = noanonymous
 smtpd_sasl_path = private/auth

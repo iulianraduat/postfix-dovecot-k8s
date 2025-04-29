@@ -28,19 +28,18 @@ if [ ! -f /etc/postfix/sender_login_maps ]; then
   done
 fi
 
-if [ ! -f /opt/postfix-dovecot/sasl_passwd ]; then
-  cat /opt/postfix-dovecot/dovecot_passwd | while read LINE; do
-    echo ${LINE/:\{PLAIN\}/ } >> /opt/postfix-dovecot/sasl_passwd
-  done
-fi
-
 cat /opt/postfix-dovecot/dovecot_passwd | while read LINE; do
   if [[ "$LINE" == *":{PLAIN}"* ]]; then
-    IFS="{PLAIN}" read -r ACCOUNT PASSWORD <<< "$LINE"
-    echo -n $ACCOUNT >> /opt/postfix-dovecot/dovecot_passwd.tmp
-    doveadm pw -s SHA512-CRYPT -p "$PASSWORD" | tr -d '\n' >> /opt/postfix-dovecot/dovecot_passwd.tmp
-    IFS="@" read -r U D <<< "${ACCOUNT/:/}"
-    echo :8:8::/var/mail/vhosts/$D/$U:: >> /opt/postfix-dovecot/dovecot_passwd.tmp
+    IFS=":" read -r ACCOUNT PASSWORD REST <<< "$LINE"
+    echo -n $ACCOUNT: >> /opt/postfix-dovecot/dovecot_passwd.tmp
+    PWD=${PASSWORD/\{PLAIN\}/}
+    doveadm pw -s SHA512-CRYPT -p $PWD | tr -d '\n' >> /opt/postfix-dovecot/dovecot_passwd.tmp
+    if [[ -z "$REST" ]]; then
+      IFS="@" read -r U D <<< "${ACCOUNT/:/}"
+      echo :8:8::/var/mail/vhosts/$D/$U:: >> /opt/postfix-dovecot/dovecot_passwd.tmp
+    else
+      echo ":$REST" >> /opt/postfix-dovecot/dovecot_passwd.tmp
+    fi
   else
     echo "$LINE" >> /opt/postfix-dovecot/dovecot_passwd.tmp
   fi
@@ -54,11 +53,9 @@ chmod -R 750 /var/mail/vhosts
 
 # Update Postfix database
 postmap /etc/postfix/sender_login_maps
-postmap /opt/postfix-dovecot/sasl_passwd
 postmap /opt/postfix-dovecot/virtual_alias_maps
 postmap /opt/postfix-dovecot/virtual_mailbox_maps
 chmod 600 /opt/postfix-dovecot/dovecot_passwd
-chmod 600 /opt/postfix-dovecot/sasl_passwd /opt/postfix-dovecot/sasl_passwd.db
 chown dovecot:root /opt/postfix-dovecot/*
 
 # Dovecot

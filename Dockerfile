@@ -1,18 +1,24 @@
 # Use an official Ubuntu base image
-FROM ubuntu:20.04
+FROM ubuntu:25.04
 
 # Set environment variables to avoid interactive prompts during install
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Update and install necessary packages
 RUN apt-get update && \
-    apt-get install -y dos2unix postfix dovecot-imapd && \
+    apt-get install -y dos2unix postfix dovecot-imapd cron && \
     apt-get clean
 RUN cp -f /etc/postfix/master.cf /etc/postfix/master.dist.cf
 
 # Copy configuration files
 COPY postfix/main.cf /etc/postfix/main.dist.cf
 COPY dovecot/dovecot.conf /etc/dovecot/dovecot.dist.conf
+COPY dovecot/gen-dovecot-certificate.sh /etc/dovecot/gen-dovecot-certificate.sh
+RUN dos2unix /etc/dovecot/gen-dovecot-certificate.sh && chmod +x /etc/dovecot/gen-dovecot-certificate.sh && /etc/dovecot/gen-dovecot-certificate.sh
+
+COPY dovecot/dovecot-cert-renew /etc/cron.d/dovecot-cert-renew
+RUN chmod 644 /etc/cron.d/dovecot-cert-renew
+RUN service cron restart
 
 # Setup the setup (needed by setup.sh)
 RUN mkdir -p /opt/postfix-dovecot
